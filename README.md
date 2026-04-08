@@ -1,3 +1,12 @@
+---
+title: Airport Ops Env
+emoji: airplane
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 8000
+---
+
 # AirportOpsEnv
 
 AirportOpsEnv is an OpenEnv-compatible airport ground-operations benchmark where an agent manages inbound traffic, gate allocation, emergency response, and crisis protocols. The environment is designed around realistic controller workflows rather than game mechanics, and the bundled scenarios are now anchored to Delhi Airport-inspired operating context for an Indian aviation domain feel.
