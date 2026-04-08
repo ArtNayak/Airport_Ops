@@ -1,6 +1,6 @@
 ---
 title: Airport Ops Env
-emoji: airplane
+
 colorFrom: blue
 colorTo: green
 sdk: docker
