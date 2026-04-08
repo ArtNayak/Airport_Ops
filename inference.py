@@ -82,6 +82,14 @@ def _reward_str(value: float) -> str:
     return f"{value:.2f}"
 
 
+def _score_str(value: float) -> str:
+    return f"{value:.4f}"
+
+
+def _strict_score(value: float) -> float:
+    return min(max(value, 0.0001), 0.9999)
+
+
 def _error_str(error: Optional[str]) -> str:
     return error if error else "null"
 
@@ -148,7 +156,7 @@ def log_end(success: bool, steps: int, score: float, rewards: list[float]) -> No
     rewards_str = ",".join(_reward_str(reward) for reward in rewards)
     print(
         f"[END] success={_bool_str(success)} steps={steps} "
-        f"score={_reward_str(score)} rewards={rewards_str}",
+        f"score={_score_str(score)} rewards={rewards_str}",
         flush=True,
     )
 
@@ -616,9 +624,9 @@ def fetch_grade() -> float:
     try:
         response = requests.get(f"{ENV_URL}/grade", timeout=30)
         response.raise_for_status()
-        return float(response.json().get("episode_score", 0.0))
+        return _strict_score(float(response.json().get("episode_score", 0.0)))
     except Exception:
-        return 0.0
+        return _strict_score(0.0)
 
 
 def run_task(task_id: str) -> dict:

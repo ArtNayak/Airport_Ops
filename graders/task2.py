@@ -22,14 +22,14 @@ class Task2Grader(BaseGrader):
     def grade_episode(self) -> float:
         penalty, is_zero = self.check_hard_penalties()
         if is_zero:
-            return 0.0
+            return self._strict_unit_interval_score(0.0)
         fuel_score = self._fuel_override_army()
         bomb_score = self._bomb_isolation_protocol()
         order_score = self._check_priority_ordering()
         raw = 0.40 * fuel_score + 0.40 * bomb_score + 0.20 * order_score
         if self._used_maintenance_runway():
             raw = min(raw, 0.2)
-        return round(min(max(raw, 0.0), 1.0), 4)
+        return self._strict_unit_interval_score(raw)
  
     def _fuel_override_army(self) -> float:
         """FL002 (fuel=8 mins) must be assigned runway BEFORE FL001 (army)."""

@@ -26,14 +26,14 @@ class Task1Grader(BaseGrader):
         """Full episode grade — called externally for logging/debugging."""
         penalty, is_zero = self.check_hard_penalties()
         if is_zero:
-            return 0.0
+            return self._strict_unit_interval_score(0.0)
         medevac = self._medevac_prompt_response()
         gate = self._gate_type_correctness()
         order = self._check_priority_ordering()
         raw = 0.4 * medevac + 0.4 * gate + 0.2 * order
         if self._used_maintenance_runway():
             raw = min(raw, 0.2)
-        return round(min(max(raw, 0.0), 1.0), 4)
+        return self._strict_unit_interval_score(raw)
  
     def _medevac_prompt_response(self) -> float:
         """FL001 (medevac) must get assign_runway within first 2 actions."""

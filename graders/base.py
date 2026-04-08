@@ -28,6 +28,16 @@ class BaseGrader(ABC):
     @abstractmethod
     def check_hard_penalties(self) -> tuple[float, bool]:
         pass
+
+    def _strict_unit_interval_score(self, score: float) -> float:
+        """
+        Keep final task scores strictly inside (0, 1).
+
+        The remote OpenEnv submission validator rejects exact boundary values,
+        so we clip the externally reported episode score to a tiny epsilon away
+        from 0.0 and 1.0 while preserving its ordering.
+        """
+        return round(min(max(score, 0.0001), 0.9999), 4)
  
     # ── Shared violation detectors ────────────────────────────────────── #
  

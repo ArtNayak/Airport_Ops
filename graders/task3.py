@@ -22,7 +22,7 @@ class Task3Grader(BaseGrader):
     def grade_episode(self) -> float:
         penalty, is_zero = self.check_hard_penalties()
         if is_zero:
-            return 0.0
+            return self._strict_unit_interval_score(0.0)
         raw = (
             0.25 * self._hijack_protocol()
             + 0.25 * self._fire_protocol()
@@ -32,7 +32,7 @@ class Task3Grader(BaseGrader):
         )
         if self._used_maintenance_runway():
             raw = min(raw, 0.2)
-        return round(min(max(raw, 0.0), 1.0), 4)
+        return self._strict_unit_interval_score(raw)
 
     def _hijack_protocol(self) -> float:
         iso_assigned = False
