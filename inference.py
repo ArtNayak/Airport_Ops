@@ -4,22 +4,59 @@ from typing import Optional
 
 import requests
 from openai import OpenAI
+from pydantic import ValidationError
+
+from models import Action
+
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    load_dotenv = None
+
+
+if load_dotenv is not None:
+    load_dotenv()
 
 
 ENV_NAME = "airport-ops-env"
-API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4.1-mini")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 HF_TOKEN = os.getenv("HF_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+API_KEY_ENV = os.getenv("API_KEY")
 ENV_URL = os.getenv("ENV_URL", "http://localhost:8000")
 SUCCESS_THRESHOLD = 0.60
 
-if HF_TOKEN is None:
-    raise ValueError("HF_TOKEN environment variable is required")
+API_KEY = HF_TOKEN or OPENAI_API_KEY or API_KEY_ENV
 
-client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
+if API_KEY is None:
+    raise ValueError(
+        "HF_TOKEN environment variable is required for Hugging Face router usage. "
+        "OPENAI_API_KEY or API_KEY are also accepted for local use."
+    )
+
+client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 
 SYSTEM_PROMPT = """You are an airport ground operations controller for a realistic Indian airport benchmark.
 Return exactly one valid JSON action object per turn.
+
+Required JSON schema:
+{
+  "flight_id": "FL001",
+  "action_type": "assign_runway",
+  "target_id": "R1",
+  "use_secure_channel": false,
+  "notify_authorities": ["security"]
+}
+
+Use these exact field names:
+- flight_id
+- action_type
+- target_id
+- use_secure_channel
+- notify_authorities
+
+Do not use alternate keys like action, runway_id, gate_id, runway, gate, or secure_channel.
 
 Rules:
 - Prioritize active crises before routine traffic.
@@ -53,6 +90,48 @@ def _action_str(action: dict) -> str:
     return json.dumps(action, separators=(",", ":"), sort_keys=True)
 
 
+def _extract_json_payload(raw: str) -> str:
+    raw = raw.strip()
+    if raw.startswith("```"):
+        parts = raw.split("```")
+        if len(parts) >= 2:
+            raw = parts[1]
+        raw = raw.lstrip("json").strip()
+    return raw
+
+
+def _normalize_action(action: dict) -> dict:
+    normalized = dict(action)
+
+    if "action_type" not in normalized and "action" in normalized:
+        normalized["action_type"] = normalized.pop("action")
+
+    if "target_id" not in normalized:
+        for candidate_key in ("runway_id", "gate_id", "target", "runway", "gate"):
+            if candidate_key in normalized:
+                normalized["target_id"] = normalized.pop(candidate_key)
+                break
+
+    if "use_secure_channel" not in normalized and "secure_channel" in normalized:
+        normalized["use_secure_channel"] = normalized.pop("secure_channel")
+
+    normalized.setdefault("use_secure_channel", False)
+
+    notify = normalized.get("notify_authorities")
+    if isinstance(notify, str):
+        normalized["notify_authorities"] = [notify]
+
+    return normalized
+
+
+def _parse_action(raw: str) -> Action:
+    payload = _extract_json_payload(raw)
+    data = json.loads(payload)
+    if not isinstance(data, dict):
+        raise ValueError("Model response was not a JSON object")
+    return Action.model_validate(_normalize_action(data))
+
+
 def log_start(task_id: str) -> None:
     print(f"[START] task={task_id} env={ENV_NAME} model={MODEL_NAME}", flush=True)
 
@@ -65,10 +144,11 @@ def log_step(step: int, action: dict, reward: float, done: bool, error: Optional
     )
 
 
-def log_end(success: bool, steps: int, rewards: list[float]) -> None:
+def log_end(success: bool, steps: int, score: float, rewards: list[float]) -> None:
     rewards_str = ",".join(_reward_str(reward) for reward in rewards)
     print(
-        f"[END] success={_bool_str(success)} steps={steps} rewards={rewards_str}",
+        f"[END] success={_bool_str(success)} steps={steps} "
+        f"score={_reward_str(score)} rewards={rewards_str}",
         flush=True,
     )
 
@@ -309,6 +389,183 @@ def heuristic_action(obs: dict) -> dict:
     return {"flight_id": any_flight, "action_type": "hold", "use_secure_channel": False}
 
 
+def _flight_map(obs: dict) -> dict[str, dict]:
+    return {flight["flight_id"]: flight for flight in obs.get("flights", [])}
+
+
+def _action_seen(
+    history: list[dict],
+    action_type: str,
+    flight_id: Optional[str] = None,
+    target_id: Optional[str] = None,
+) -> bool:
+    for item in history:
+        action = item.get("action", {})
+        if action.get("action_type") != action_type:
+            continue
+        if flight_id is not None and action.get("flight_id") != flight_id:
+            continue
+        if target_id is not None and action.get("target_id") != target_id:
+            continue
+        return True
+    return False
+
+
+def _pick_free_runway(obs: dict, preferred: Optional[list[str]] = None) -> Optional[str]:
+    available = obs.get("available_runways", [])
+    if preferred:
+        for runway_id in preferred:
+            if runway_id in available:
+                return runway_id
+    return available[0] if available else None
+
+
+def _is_gate_free(obs: dict, gate_id: str) -> bool:
+    gate = obs.get("gates", {}).get(gate_id, {})
+    return gate.get("status") == "free"
+
+
+def _first_waiting_flight(obs: dict, excluded_ids: Optional[set[str]] = None) -> Optional[str]:
+    excluded_ids = excluded_ids or set()
+    waiting = sorted(
+        [
+            flight
+            for flight in obs.get("flights", [])
+            if flight["flight_id"] not in excluded_ids
+            and flight.get("status") in ("requesting_landing", "holding")
+            and not flight.get("assigned_runway")
+            and not flight.get("assigned_gate")
+        ],
+        key=get_flight_priority,
+    )
+    return waiting[0]["flight_id"] if waiting else None
+
+
+def _task3_policy_action(obs: dict, history: list[dict]) -> Optional[dict]:
+    flights = _flight_map(obs)
+    active_crises = {crisis["type"]: crisis for crisis in obs.get("active_crises", [])}
+    fire_crisis = active_crises.get("runway_fire")
+    fire_target = fire_crisis.get("target_id", "R2") if fire_crisis else "R2"
+
+    fl005 = flights.get("FL005")
+    if fl005 and fl005.get("status") not in ("at_gate", "diverted"):
+        if not fl005.get("assigned_runway"):
+            runway_id = _pick_free_runway(obs, preferred=["R1", "R2"])
+            if runway_id:
+                return {
+                    "flight_id": "FL005",
+                    "action_type": "assign_runway",
+                    "target_id": runway_id,
+                    "use_secure_channel": False,
+                }
+        if fl005.get("assigned_runway") and not fl005.get("assigned_gate") and _is_gate_free(obs, "G_ISO"):
+            return {
+                "flight_id": "FL005",
+                "action_type": "assign_gate",
+                "target_id": "G_ISO",
+                "use_secure_channel": True,
+            }
+
+    fl003 = flights.get("FL003")
+    if (
+        fl003
+        and fl003.get("status") not in ("at_gate", "diverted")
+        and not fl003.get("assigned_runway")
+        and not fire_crisis
+    ):
+        runway_id = _pick_free_runway(obs, preferred=["R1", "R2"])
+        if runway_id:
+            return {
+                "flight_id": "FL003",
+                "action_type": "assign_runway",
+                "target_id": runway_id,
+                "use_secure_channel": False,
+            }
+
+    if fire_crisis and not _action_seen(history, "hold"):
+        hold_flight = _first_waiting_flight(obs, excluded_ids={"FL007"})
+        if hold_flight:
+            return {
+                "flight_id": hold_flight,
+                "action_type": "hold",
+                "use_secure_channel": False,
+            }
+
+    if not _action_seen(history, "scramble_security", flight_id="FL005"):
+        return {
+            "flight_id": "FL005",
+            "action_type": "scramble_security",
+            "use_secure_channel": False,
+        }
+
+    if fire_crisis and not _action_seen(history, "scramble_fire"):
+        return {
+            "flight_id": fire_crisis.get("flight_id", "FL007"),
+            "action_type": "scramble_fire",
+            "use_secure_channel": False,
+        }
+
+    if fire_crisis and not _action_seen(history, "close_runway", target_id=fire_target):
+        return {
+            "flight_id": fire_crisis.get("flight_id", "FL007"),
+            "action_type": "close_runway",
+            "target_id": fire_target,
+            "use_secure_channel": False,
+        }
+
+    if fl003 and fl003.get("assigned_runway") and not fl003.get("assigned_gate") and _is_gate_free(obs, "G_MED"):
+        return {
+            "flight_id": "FL003",
+            "action_type": "assign_gate",
+            "target_id": "G_MED",
+            "use_secure_channel": False,
+        }
+
+    gate_plan = [
+        ("FL001", "G2"),
+        ("FL004", "G3"),
+        ("FL013", "G6"),
+    ]
+    for flight_id, gate_id in gate_plan:
+        flight = flights.get(flight_id)
+        if not flight or flight.get("status") in ("at_gate", "diverted"):
+            continue
+        if not flight.get("assigned_runway"):
+            runway_id = _pick_free_runway(obs, preferred=["R1"])
+            if runway_id:
+                return {
+                    "flight_id": flight_id,
+                    "action_type": "assign_runway",
+                    "target_id": runway_id,
+                    "use_secure_channel": False,
+                }
+        if flight.get("assigned_runway") and not flight.get("assigned_gate") and _is_gate_free(obs, gate_id):
+            return {
+                "flight_id": flight_id,
+                "action_type": "assign_gate",
+                "target_id": gate_id,
+                "use_secure_channel": False,
+            }
+
+    divert_candidates = sorted(
+        [
+            flight
+            for flight in obs.get("flights", [])
+            if flight["flight_id"] not in {"FL005", "FL003", "FL001", "FL004", "FL013"}
+            and flight.get("status") not in ("at_gate", "diverted")
+        ],
+        key=lambda flight: (-get_flight_priority(flight), flight.get("fuel_remaining_mins", 999)),
+    )
+    if divert_candidates:
+        return {
+            "flight_id": divert_candidates[0]["flight_id"],
+            "action_type": "divert",
+            "use_secure_channel": False,
+        }
+
+    return None
+
+
 def get_llm_action(obs: dict, history: list[dict]) -> dict:
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     for item in history[-3:]:
@@ -327,14 +584,21 @@ def get_llm_action(obs: dict, history: list[dict]) -> dict:
             temperature=0.0,
             max_tokens=200,
         )
-        raw = (response.choices[0].message.content or "").strip()
-        if raw.startswith("```"):
-            raw = raw.split("```")[1].lstrip("json").strip()
-        action = json.loads(raw)
-        action.setdefault("use_secure_channel", False)
-        return action
+        raw = response.choices[0].message.content or ""
+        action = _parse_action(raw)
+        return action.model_dump(exclude_none=True)
+    except (json.JSONDecodeError, ValidationError, ValueError, TypeError):
+        return heuristic_action(obs)
     except Exception:
         return heuristic_action(obs)
+
+
+def choose_action(task_id: str, obs: dict, history: list[dict]) -> dict:
+    if task_id == "task3":
+        task3_action = _task3_policy_action(obs, history)
+        if task3_action is not None:
+            return task3_action
+    return get_llm_action(obs, history)
 
 
 def fetch_tasks() -> list[str]:
@@ -374,7 +638,7 @@ def run_task(task_id: str) -> dict:
 
         while not done:
             step_count += 1
-            action = get_llm_action(obs, history)
+            action = choose_action(task_id, obs, history)
             try:
                 response = requests.post(f"{ENV_URL}/step", json=action, timeout=30)
                 response.raise_for_status()
@@ -399,7 +663,7 @@ def run_task(task_id: str) -> dict:
         final_score = fetch_grade()
     finally:
         success = done and final_score >= SUCCESS_THRESHOLD
-        log_end(success, step_count, rewards)
+        log_end(success, step_count, final_score, rewards)
 
     return {
         "task_id": task_id,

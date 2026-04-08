@@ -71,6 +71,8 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+For local runs, you can copy `.env.example` to `.env` and set `HF_TOKEN` there. The repo defaults to the Hugging Face OpenAI-compatible router.
+
 ## Run The API
 
 ```bash
@@ -112,6 +114,9 @@ Example:
 set HF_TOKEN=your_token_here
 python inference.py
 ```
+
+By default, `inference.py` uses `https://router.huggingface.co/v1` with `MODEL_NAME=Qwen/Qwen2.5-72B-Instruct`.
+It also accepts `OPENAI_API_KEY` or `API_KEY` for local use if you point `API_BASE_URL` at another compatible provider.
 
 ## Baseline Scores
 
