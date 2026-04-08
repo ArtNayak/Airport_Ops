@@ -1,0 +1,188 @@
+{
+  "_comment": "ETA lookup. Structure: time_buckets[bucket][runway_to_gate][runway_id][gate_id]. Times in minutes. Sources: DGCA Annual Reports 2022-23, IATA AHM 730, AAI ATC Manual Ch.7, ICAO Annex 14.",
+  "time_buckets": {
+    "off_peak_weekday": {
+      "runway_to_gate": {
+        "R1": {
+          "G1": 4,
+          "G2": 5,
+          "G3": 6,
+          "G4": 7,
+          "G5": 9,
+          "G6": 10,
+          "G_MED": 5,
+          "G_ISO": 12
+        },
+        "R2": {
+          "G1": 6,
+          "G2": 4,
+          "G3": 5,
+          "G4": 5,
+          "G5": 7,
+          "G6": 8,
+          "G_MED": 6,
+          "G_ISO": 10
+        },
+        "R3": {
+          "G1": 9,
+          "G2": 8,
+          "G3": 6,
+          "G4": 5,
+          "G5": 4,
+          "G6": 5,
+          "G_MED": 8,
+          "G_ISO": 7
+        }
+      },
+      "congestion_factor": 1,
+      "runway_turnaround_mins": 3
+    },
+    "rush_hour_weekday": {
+      "runway_to_gate": {
+        "R1": {
+          "G1": 7,
+          "G2": 9,
+          "G3": 11,
+          "G4": 13,
+          "G5": 16,
+          "G6": 18,
+          "G_MED": 8,
+          "G_ISO": 20
+        },
+        "R2": {
+          "G1": 10,
+          "G2": 7,
+          "G3": 9,
+          "G4": 9,
+          "G5": 12,
+          "G6": 14,
+          "G_MED": 10,
+          "G_ISO": 17
+        },
+        "R3": {
+          "G1": 16,
+          "G2": 14,
+          "G3": 11,
+          "G4": 9,
+          "G5": 7,
+          "G6": 9,
+          "G_MED": 14,
+          "G_ISO": 12
+        }
+      },
+      "congestion_factor": 1.75,
+      "runway_turnaround_mins": 7
+    },
+    "weekend": {
+      "runway_to_gate": {
+        "R1": {
+          "G1": 5,
+          "G2": 6,
+          "G3": 7,
+          "G4": 9,
+          "G5": 11,
+          "G6": 13,
+          "G_MED": 6,
+          "G_ISO": 14
+        },
+        "R2": {
+          "G1": 8,
+          "G2": 5,
+          "G3": 7,
+          "G4": 7,
+          "G5": 9,
+          "G6": 11,
+          "G_MED": 8,
+          "G_ISO": 13
+        },
+        "R3": {
+          "G1": 12,
+          "G2": 10,
+          "G3": 8,
+          "G4": 7,
+          "G5": 5,
+          "G6": 7,
+          "G_MED": 10,
+          "G_ISO": 9
+        }
+      },
+      "congestion_factor": 1.2,
+      "runway_turnaround_mins": 5
+    },
+    "holiday": {
+      "runway_to_gate": {
+        "R1": {
+          "G1": 9,
+          "G2": 11,
+          "G3": 14,
+          "G4": 17,
+          "G5": 21,
+          "G6": 24,
+          "G_MED": 10,
+          "G_ISO": 26
+        },
+        "R2": {
+          "G1": 13,
+          "G2": 9,
+          "G3": 12,
+          "G4": 12,
+          "G5": 16,
+          "G6": 19,
+          "G_MED": 13,
+          "G_ISO": 22
+        },
+        "R3": {
+          "G1": 21,
+          "G2": 18,
+          "G3": 14,
+          "G4": 12,
+          "G5": 9,
+          "G6": 12,
+          "G_MED": 18,
+          "G_ISO": 15
+        }
+      },
+      "congestion_factor": 2.1,
+      "runway_turnaround_mins": 10,
+      "night_curfew_cargo_delay_mins": 45,
+      "fuel_truck_delay_factor": 1.4
+    }
+  },
+  "flight_type_taxi_speed": {
+    "army": 1,
+    "medevac": 0.85,
+    "government": 1,
+    "commercial": 1,
+    "cargo": 1.3
+  },
+  "optimal_runway_for_gate": {
+    "G1": "R1",
+    "G2": "R1",
+    "G3": "R2",
+    "G4": "R2",
+    "G5": "R3",
+    "G6": "R3",
+    "G_MED": "R1",
+    "G_ISO": "R3"
+  },
+  "crisis_eta_overrides": {
+    "medical_emergency": {
+      "max_acceptable_eta_mins": 3,
+      "required_gate": "G_MED"
+    },
+    "fuel_emergency": {
+      "assign_immediately": true
+    },
+    "hijacking": {
+      "required_gate": "G_ISO",
+      "security_response_mins": 4
+    },
+    "bomb_threat": {
+      "required_gate": "G_ISO"
+    },
+    "runway_fire": {
+      "fire_brigade_response_secs": 90,
+      "go_around_mandatory": true
+    }
+  }
+}

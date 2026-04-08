@@ -1,0 +1,71 @@
+name: airport-ops-env
+version: 1.0.0
+description: >
+  Airport ground operations controller benchmark inspired by Indian hub-airport
+  operations. Agent dispatches runways, gates, and emergency units while
+  handling hijackings, medical emergencies, runway fires, and fuel crises.
+tags:
+  - openenv
+  - airport
+  - dispatch
+  - crisis-management
+  - scheduling
+  - real-world
+author: AirportOpsEnv
+tasks:
+  - id: task1
+    name: Basic Priority Landing
+    difficulty: easy
+    max_steps: 20
+    description: >
+      5 inbound flights, 1 medevac crisis. Agent must respect priority order
+      and respond to medical emergency within 1 step.
+  - id: task2
+    name: Resource Conflict with Emergency
+    difficulty: medium
+    max_steps: 40
+    description: >
+      8 inbound flights during rush hour. Fuel emergency overrides army priority.
+      Bomb threat requires isolation bay. 1 runway under maintenance.
+  - id: task3
+    name: Multi-Crisis Holiday Peak
+    difficulty: hard
+    max_steps: 80
+    description: >
+      15 flights on Diwali morning. Simultaneous hijacking and runway fire.
+      Cargo backlog, reduced staff, 1 runway under maintenance.
+observation_space:
+  type: object
+  fields:
+    step: int
+    airport_context: AirportContext
+    time_of_day: str
+    day_of_week: str
+    is_holiday: bool
+    flights: list[FlightInfo]
+    runways: dict
+    gates: dict
+    active_crises: list[ActiveCrisis]
+    available_runways: list[str]
+    available_gates: list[str]
+    ground_units: dict
+action_space:
+  type: object
+  fields:
+    flight_id: str
+    action_type: "assign_runway | assign_gate | hold | divert | scramble_security | scramble_fire | scramble_medical | close_runway | vacate_runway"
+    target_id: "str | null"
+    use_secure_channel: bool
+    notify_authorities: "list[str] | null"
+reward_space:
+  type: object
+  fields:
+    total: float
+    priority_score: float
+    resource_match_score: float
+    eta_score: float
+    crisis_protocol_score: float
+    penalty: float
+    episode_score: float
+    progress_delta: float
+    invalid_action: bool

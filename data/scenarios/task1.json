@@ -1,0 +1,152 @@
+{
+  "_comment": "Task 1 — Easy. 5 inbound flights, 1 medevac crisis mid-approach. Off-peak Tuesday. Resources abundant.",
+  "airport_context": {
+    "airport_id": "del-india",
+    "airport_name": "Indira Gandhi International Airport",
+    "iata": "DEL",
+    "icao": "VIDP",
+    "city": "New Delhi",
+    "country": "India",
+    "operator": "Delhi International Airport Limited (DIAL)",
+    "profile_note": "Simplified three-runway benchmark inspired by Delhi Airport's four-runway layout and Terminal 3 operations.",
+    "runway_aliases": {
+      "R1": "11L-29R",
+      "R2": "11R-29L",
+      "R3": "10-28"
+    },
+    "source_urls": [
+      "https://site.newdelhiairport.in/medias/factsheet/",
+      "https://site.newdelhiairport.in/terminals/terminal-3",
+      "https://dy.newdelhiairport.in/"
+    ]
+  },
+  "time_context": {
+    "time_of_day": "14:30",
+    "day_of_week": "Tuesday",
+    "is_holiday": false
+  },
+  "ground_units": {
+    "ambulances": 3,
+    "fire_trucks": 2,
+    "security_teams": 3
+  },
+  "runways": [
+    {
+      "id": "R1",
+      "type": "landing",
+      "status": "free"
+    },
+    {
+      "id": "R2",
+      "type": "dual",
+      "status": "free"
+    },
+    {
+      "id": "R3",
+      "type": "landing",
+      "status": "free"
+    }
+  ],
+  "gates": [
+    {
+      "id": "G1",
+      "type": "pax",
+      "status": "free"
+    },
+    {
+      "id": "G2",
+      "type": "pax",
+      "status": "free"
+    },
+    {
+      "id": "G3",
+      "type": "pax",
+      "status": "free"
+    },
+    {
+      "id": "G4",
+      "type": "pax",
+      "status": "free"
+    },
+    {
+      "id": "G5",
+      "type": "cargo",
+      "status": "free"
+    },
+    {
+      "id": "G6",
+      "type": "cargo",
+      "status": "free"
+    },
+    {
+      "id": "G_MED",
+      "type": "medical",
+      "status": "free"
+    },
+    {
+      "id": "G_ISO",
+      "type": "isolation",
+      "status": "free"
+    }
+  ],
+  "flights": [
+    {
+      "flight_id": "FL001",
+      "flight_type": "medevac",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 45,
+      "passengers": 2,
+      "crisis": "medical_onboard",
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL002",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 60,
+      "passengers": 180,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL003",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 55,
+      "passengers": 140,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL004",
+      "flight_type": "government",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 70,
+      "passengers": 12,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL005",
+      "flight_type": "cargo",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 80,
+      "passengers": 0,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    }
+  ],
+  "crises": [
+    {
+      "type": "medical_emergency",
+      "flight_id": "FL001",
+      "activate_step": 0,
+      "resolved": false
+    }
+  ]
+}

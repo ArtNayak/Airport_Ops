@@ -1,0 +1,259 @@
+{
+  "_comment": "Task 3 — Hard. 15 flights. Diwali 06:00. Cargo curfew backlog. 1 runway maintenance, 3 gates occupied. SIMULTANEOUS hijacking + runway fire.",
+  "airport_context": {
+    "airport_id": "del-india",
+    "airport_name": "Indira Gandhi International Airport",
+    "iata": "DEL",
+    "icao": "VIDP",
+    "city": "New Delhi",
+    "country": "India",
+    "operator": "Delhi International Airport Limited (DIAL)",
+    "profile_note": "Diwali peak benchmark inspired by Delhi Airport's holiday surges, multi-runway operations and remote-isolation handling.",
+    "runway_aliases": {
+      "R1": "11L-29R",
+      "R2": "11R-29L",
+      "R3": "10-28"
+    },
+    "source_urls": [
+      "https://site.newdelhiairport.in/medias/factsheet/",
+      "https://site.newdelhiairport.in/terminals/terminal-3",
+      "https://dy.newdelhiairport.in/"
+    ]
+  },
+  "time_context": {
+    "time_of_day": "06:00",
+    "day_of_week": "Thursday",
+    "is_holiday": true
+  },
+  "ground_units": {
+    "ambulances": 2,
+    "fire_trucks": 2,
+    "security_teams": 2
+  },
+  "runways": [
+    {
+      "id": "R1",
+      "type": "landing",
+      "status": "free"
+    },
+    {
+      "id": "R2",
+      "type": "dual",
+      "status": "free"
+    },
+    {
+      "id": "R3",
+      "type": "landing",
+      "status": "maintenance"
+    }
+  ],
+  "gates": [
+    {
+      "id": "G1",
+      "type": "pax",
+      "status": "occupied"
+    },
+    {
+      "id": "G2",
+      "type": "pax",
+      "status": "free"
+    },
+    {
+      "id": "G3",
+      "type": "pax",
+      "status": "free"
+    },
+    {
+      "id": "G4",
+      "type": "pax",
+      "status": "occupied"
+    },
+    {
+      "id": "G5",
+      "type": "cargo",
+      "status": "occupied"
+    },
+    {
+      "id": "G6",
+      "type": "cargo",
+      "status": "free"
+    },
+    {
+      "id": "G_MED",
+      "type": "medical",
+      "status": "free"
+    },
+    {
+      "id": "G_ISO",
+      "type": "isolation",
+      "status": "free"
+    }
+  ],
+  "flights": [
+    {
+      "flight_id": "FL001",
+      "flight_type": "army",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 35,
+      "passengers": 45,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL002",
+      "flight_type": "medevac",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 25,
+      "passengers": 1,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL003",
+      "flight_type": "medevac",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 20,
+      "passengers": 1,
+      "crisis": "medical_onboard",
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL004",
+      "flight_type": "government",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 50,
+      "passengers": 6,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL005",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 40,
+      "passengers": 220,
+      "crisis": "hijack",
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL006",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 38,
+      "passengers": 175,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL007",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 45,
+      "passengers": 190,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL008",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 55,
+      "passengers": 160,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL009",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 48,
+      "passengers": 200,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL010",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 30,
+      "passengers": 145,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL011",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 60,
+      "passengers": 180,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL012",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 52,
+      "passengers": 155,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL013",
+      "flight_type": "cargo",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 65,
+      "passengers": 0,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL014",
+      "flight_type": "cargo",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 70,
+      "passengers": 0,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL015",
+      "flight_type": "cargo",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 75,
+      "passengers": 0,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    }
+  ],
+  "crises": [
+    {
+      "type": "hijacking",
+      "flight_id": "FL005",
+      "activate_step": 0,
+      "resolved": false
+    },
+    {
+      "type": "runway_fire",
+      "flight_id": "FL007",
+      "activate_step": 3,
+      "target_id": "R2",
+      "resolved": false
+    }
+  ]
+}

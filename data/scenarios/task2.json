@@ -1,0 +1,188 @@
+{
+  "_comment": "Task 2 — Medium. 8 inbound flights. Rush hour Monday. Fuel emergency overrides army. Bomb threat on cargo. 1 runway under maintenance.",
+  "airport_context": {
+    "airport_id": "del-india",
+    "airport_name": "Indira Gandhi International Airport",
+    "iata": "DEL",
+    "icao": "VIDP",
+    "city": "New Delhi",
+    "country": "India",
+    "operator": "Delhi International Airport Limited (DIAL)",
+    "profile_note": "Rush-hour benchmark inspired by Delhi Airport with one simulated maintenance closure on R3.",
+    "runway_aliases": {
+      "R1": "11L-29R",
+      "R2": "11R-29L",
+      "R3": "10-28"
+    },
+    "source_urls": [
+      "https://site.newdelhiairport.in/medias/factsheet/",
+      "https://site.newdelhiairport.in/terminals/terminal-3",
+      "https://dy.newdelhiairport.in/"
+    ]
+  },
+  "time_context": {
+    "time_of_day": "08:15",
+    "day_of_week": "Monday",
+    "is_holiday": false
+  },
+  "ground_units": {
+    "ambulances": 2,
+    "fire_trucks": 2,
+    "security_teams": 2
+  },
+  "runways": [
+    {
+      "id": "R1",
+      "type": "landing",
+      "status": "free"
+    },
+    {
+      "id": "R2",
+      "type": "dual",
+      "status": "free"
+    },
+    {
+      "id": "R3",
+      "type": "landing",
+      "status": "maintenance"
+    }
+  ],
+  "gates": [
+    {
+      "id": "G1",
+      "type": "pax",
+      "status": "occupied"
+    },
+    {
+      "id": "G2",
+      "type": "pax",
+      "status": "free"
+    },
+    {
+      "id": "G3",
+      "type": "pax",
+      "status": "free"
+    },
+    {
+      "id": "G4",
+      "type": "pax",
+      "status": "occupied"
+    },
+    {
+      "id": "G5",
+      "type": "cargo",
+      "status": "occupied"
+    },
+    {
+      "id": "G6",
+      "type": "cargo",
+      "status": "free"
+    },
+    {
+      "id": "G_MED",
+      "type": "medical",
+      "status": "free"
+    },
+    {
+      "id": "G_ISO",
+      "type": "isolation",
+      "status": "free"
+    }
+  ],
+  "flights": [
+    {
+      "flight_id": "FL001",
+      "flight_type": "army",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 40,
+      "passengers": 30,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL002",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 8,
+      "passengers": 165,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL003",
+      "flight_type": "cargo",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 50,
+      "passengers": 0,
+      "crisis": "bomb_threat",
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL004",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 35,
+      "passengers": 210,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL005",
+      "flight_type": "commercial",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 42,
+      "passengers": 190,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL006",
+      "flight_type": "government",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 60,
+      "passengers": 8,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL007",
+      "flight_type": "cargo",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 55,
+      "passengers": 0,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    },
+    {
+      "flight_id": "FL008",
+      "flight_type": "medevac",
+      "status": "requesting_landing",
+      "fuel_remaining_mins": 30,
+      "passengers": 1,
+      "crisis": null,
+      "current_location": null,
+      "steps_waiting": 0
+    }
+  ],
+  "crises": [
+    {
+      "type": "fuel_emergency",
+      "flight_id": "FL002",
+      "activate_step": 0,
+      "resolved": false
+    },
+    {
+      "type": "bomb_threat",
+      "flight_id": "FL003",
+      "activate_step": 2,
+      "resolved": false
+    }
+  ]
+}
