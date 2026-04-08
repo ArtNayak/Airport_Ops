@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "airport-ops-env"
+version = "1.0.0"
+description = "OpenEnv-compatible airport ground operations benchmark with deterministic grading."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "ArtNayak" },
+]
+dependencies = [
+  "openenv-core>=0.2.3",
+  "fastapi>=0.110.0",
+  "uvicorn>=0.29.0",
+  "pydantic>=2.0.0",
+  "openai>=1.0.0",
+  "requests>=2.31.0",
+  "python-multipart>=0.0.9",
+  "python-dotenv>=1.0.1",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.setuptools]
+py-modules = ["app", "env", "events", "inference", "models", "state"]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["graders*", "server*"]
