@@ -238,9 +238,7 @@ class AirportOpsEnv:
         if not self.grader:
             return self._get_zero_reward()
  
-        # Fix #3/#4: correct penalty contract.
-        # is_zero=True  → short-circuit, return 0.0 total immediately.
-        # is_zero=False → penalty 0.0–1.0 used in 0.10*(1-penalty) only.
+        
         penalty, is_zero = self.grader.check_hard_penalties()
         if invalid_action or is_zero:
             return Reward(
@@ -265,10 +263,10 @@ class AirportOpsEnv:
             + 0.25 * resource_score
             + 0.20 * eta_score
             + 0.15 * crisis_score
-            + 0.10 * (1.0 - penalty)   # penalty=0.0 → full 0.10; penalty=1.0 → 0.0
+            + 0.10 * (1.0 - penalty)   
         )
  
-        # Separate cap for maintenance runway (not part of the penalty component)
+        
         if self.grader._used_maintenance_runway():
             total = min(total, 0.2)
  
@@ -351,7 +349,7 @@ class AirportOpsEnv:
         if not flight:
             return 0.0
  
-        # Determine best gate type for this flight
+        
         if flight.crisis in ("hijack", "bomb_threat"):
             target_type = GateType.ISOLATION
         elif flight.flight_type == "medevac" or flight.crisis == "medical_onboard":
@@ -365,7 +363,7 @@ class AirportOpsEnv:
         gate_id = flight.assigned_gate or (available_gates[0] if available_gates else None)
  
         if not gate_id:
-            return 0.5  # no gate reference — neutral score, not 1.0
+            return 0.5  
  
         score = self.state_machine.score_eta_optimality(
             runway_id,
